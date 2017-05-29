@@ -2,6 +2,7 @@
     "List all databases and states":{
 		"prefix": "sqlListDatabaseWithState",
 		"body":[
+            "--List all databases with states",
 			"SELECT name, state_desc, user_access_desc FROM sys.databases",
 			"GO"
 		],
@@ -9,11 +10,11 @@
 	},
 
 	    "Get top queries by total CPU time":{
-        "prefix":"insight-Perf-TopQueriesByTotalCpuTime",
+        "prefix":"insightPerfTopQueriesByTotalCpuTime",
         "body": [
-
-            "SELECT TOP 5",
-            "   rank() over(order by total_worker_time desc,sql_handle,statement_start_offset) as [Rank]",
+            "-- Top 10 queries by total CPU time",
+            "SELECT TOP 10",
+            "   RANK() OVER(ORDER BY total_worker_time DESC,sql_handle,statement_start_offset) as [Rank]",
             "   , creation_time as [Creation Time]",
             "   , last_execution_time as [Last Execution Time]",
             "   , (total_worker_time+0.0)/1000 as [Total Worker Time]",
@@ -23,27 +24,28 @@
             "   , execution_count as [Execution Count]",
             "   , total_logical_reads+total_logical_writes as [Aggegated IO]",
             "   , (total_logical_reads+total_logical_writes)/(execution_count + 0.0) as [Average IO]",
-            "   , case when sql_handle IS NULL",
-            "       then ''",
-            "       else ( substring(st.text,(qs.statement_start_offset+2)/2,",
-            "           (case when qs.statement_end_offset = -1",        
-            "               then len(convert(nvarchar(MAX),st.text))*2",      
-            "               else qs.statement_end_offset",
-            "           end - qs.statement_start_offset) /2  ) )",
-            "   end as [Query Text]",
-            "   , db_name(st.dbid) as [Database]",
+            "   , CASE WHEN sql_handle IS NULL",
+            "       THEN ''",
+            "       ELSE ( SUBSTRING(st.text,(qs.statement_start_offset+2)/2,",
+            "           (CASE WHEN qs.statement_end_offset = -1",        
+            "               THEN len(CONVERT(nvarchar(MAX),st.text))*2",      
+            "               ELSE qs.statement_end_offset",
+            "           END - qs.statement_start_offset) /2  ) )",
+            "   END as [Query Text]",
+            "   , DB_NAME(st.dbid) as [Database]",
             "   , st.objectid as [Object ID]",
-            "from sys.dm_exec_query_stats qs",
-            "cross apply sys.dm_exec_sql_text(sql_handle) st",
-            "where total_worker_time > 0",
-            "order by total_worker_time  desc"
+            "FROM sys.dm_exec_query_stats qs",
+            "CROSS APPLY sys.dm_exec_sql_text(sql_handle) st",
+            "WHERE total_worker_time > 0",
+            "ORDER BY total_worker_time  desc"
         ],
         "description": "Get top queries by total CPU time"
     },
 
 	"Get backup status for all databases":{
-		"prefix": "insight-Recovery-BackupStatus",
+		"prefix": "insightRecoveryBackupStatus",
 		"body": [
+            "-- Get backup status for all databases",
 			"USE master;",
 			"GO",
 			"DECLARE @HOURS tinyint",
@@ -77,9 +79,9 @@
 		"description": "Get backup status from all databases"
 	},
 	"Get logins and users": {
-		"prefix": "insight-Security-LoginsAndUsers",
+		"prefix": "insightSecurityLoginsAndUsers",
 		"body": [
-			"--Get all logins details",
+			"--Get all login details",
 			"SELECT sp.name AS LoginName,sp.type_desc AS LoginType,",
 				"sp.default_database_name AS DefaultDBName,slog.sysadmin AS SysAdmin,",
 				"slog.securityadmin AS SecurityAdmin,slog.serveradmin AS ServerAdmin,", 
@@ -108,7 +110,7 @@
 		},
 		
 		"Get Explicit Permission":{
-			"prefix": "insight-Security-GetExplicitPermissions",
+			"prefix": "insightSecurityGetExplicitPermissions",
 			"body": [
 				"-- Get all explicit permission on '${DatabaseName}'",
 				"USE ${DatabaseName}",
