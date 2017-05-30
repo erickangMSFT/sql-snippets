@@ -140,6 +140,54 @@
 				"WHERE r.command in ('BACKUP DATABASE','RESTORE DATABASE')"
 			],
 			"description": "Get Backup and Restore Progress"
-		}
+		},
+		"Get Server Audit detail": {
+			"prefix": "insightSecurityServerAudit",
+			"body":[
+				"--Get all server audit detail",
+				"SELECT a.name, a.is_state_enabled, a.create_date, a.modify_date, a.on_failure_desc",
+				"FROM sys.server_audits as a"
+			],
+			"description": "Get Server Audit detail"
+		},
+		"Configure Server Audit for Logins":{
+			"prefix": "previewdemoConfigureAuditDemo",
+			"body":[
+				"--Conifugre '${AuditName}' with '${ServerAuditSpec}' for logins",
+				"CREATE SERVER AUDIT ${AuditName}",
+				"TO FILE", 
+				"(FILEPATH = N'/var/opt/mssql/auditlog'",
+				",MAXSIZE = 0 MB",
+				",MAX_ROLLOVER_FILES = 2147483647",
+				",RESERVE_DISK_SPACE = OFF",
+				")",
+				"WITH",
+				"(QUEUE_DELAY = 1000",
+				",ON_FAILURE = CONTINUE",
+				")",
+				"GO",
+				"",
+				"SELECT name, is_state_enabled", 
+				"FROM sys.server_audits;",
+				"GO",
+				"",
+				"-- Create server audit specification for Success and Failed logins",
+				"ALTER SERVER AUDIT ${AuditName}",
+				"WITH (STATE = OFF);",
+				"GO",
+				"",
+				"CREATE SERVER AUDIT SPECIFICATION ${ServerAuditSpec}",
+				"FOR SERVER AUDIT ${AuditName}",
+				"ADD (FAILED_LOGIN_GROUP),",
+				"ADD (SUCCESSFUL_LOGIN_GROUP)",
+				"WITH ( STATE = ON );",
+				"GO",
+				"ALTER SERVER AUDIT ${AuditName}",
+				"WITH (STATE = ON);",		
+				"GO"
+		],
+		"description": "Configure Server audit for logins and verify"
+	}
+
 
 }
