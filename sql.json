@@ -3,7 +3,7 @@
 		"prefix": "sqlListDatabaseWithState",
 		"body":[
             "--List all databases with states",
-			"SELECT name, state_desc, user_access_desc FROM sys.databases",
+			"SELECT name, state_desc, user_access_desc, recovery_model_desc FROM sys.databases",
 			"GO"
 		],
 		"description": "List databases with states"
