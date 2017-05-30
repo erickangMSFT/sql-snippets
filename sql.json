@@ -146,7 +146,13 @@
 			"body":[
 				"--Get all server audit detail",
 				"SELECT a.name, a.is_state_enabled, a.create_date, a.modify_date, a.on_failure_desc",
-				"FROM sys.server_audits as a"
+				"FROM sys.server_audits as a",
+				"GO",
+				"--Get all server audit specifications",
+				"select * from sys.server_audit_specification_details",
+				"--Get audit file details",
+				"SELECT audit_id, name, create_date, modify_date, log_file_path + log_file_name auditlog_file_name",
+				"FROM sys.server_file_audits"
 			],
 			"description": "Get Server Audit detail"
 		},
